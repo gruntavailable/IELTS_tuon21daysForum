@@ -1,0 +1,9 @@
+{
+  "name": "ielts-marathon-21day",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IELTS Marathon 21 Day Companion — local practice app",
+  "scripts": {
+    "start": "npx --yes serve -l 5173 ."
+  }
+}

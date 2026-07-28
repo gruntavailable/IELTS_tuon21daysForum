@@ -1,0 +1,12 @@
+# Sách gốc có bản quyền — không đẩy lên repo
+*.pdf
+
+# Bản gộp một file, sinh ra bằng `python build.py`
+rourcegoc.html
+
+__pycache__/
+*.pyc
+tmp/
+node_modules/
+.vercel
+.DS_Store
