@@ -17,6 +17,7 @@ JS_FILES = [
     "src/js/timer.js",
     "src/js/tracker.js",
     "src/js/vocab.js",
+    "src/js/backup.js",
     "src/js/highlight.js",
     "src/js/app.js",
 ]

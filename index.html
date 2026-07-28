@@ -30,6 +30,11 @@
         <button class="btn sm" id="btnTheme">🌙  Chế độ tối</button>
         <button class="btn sm" id="btnClearHl" title="Xoá mọi vùng bôi màu ở trang đang xem">🖍  Xoá màu</button>
       </div>
+      <div class="toolrow" style="margin-bottom:5px">
+        <button class="btn sm" id="btnExport" title="Tải bài làm về máy dưới dạng file .json">⬇  Xuất tiến độ</button>
+        <button class="btn sm" id="btnImport" title="Khôi phục bài làm từ file .json đã xuất">⬆  Nhập tiến độ</button>
+      </div>
+      <input type="file" id="fileImport" accept=".json,application/json" hidden>
       <button class="btn sm" id="btnReset" style="width:100%" title="Xoá toàn bộ bài làm, bảng theo dõi và bài viết đã lưu">Xoá toàn bộ bài làm</button>
       <p style="font-size:11px;color:var(--tx2);margin:8px 0 0;line-height:1.5">Bôi đen nội dung bằng chuột để chọn màu. Bấm vào vùng đã bôi để xoá.</p>
     </div>

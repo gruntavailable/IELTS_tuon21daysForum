@@ -5,6 +5,7 @@ import { initTimer } from "./timer.js";
 import { renderTracker, renderDayChecklist, renderErrorLog, trackerStats } from "./tracker.js";
 import { initHighlight, loadHighlightsFor, clearDayHighlights, highlightCount } from "./highlight.js";
 import { addWord, renderVocabTable, vocabCount, onVocabChange, exportCSV, clearWords, allWords } from "./vocab.js";
+import { initBackup } from "./backup.js";
 
 /* ================= ENGINE ================= */
 const norm = s => (s||"").toLowerCase().replace(/[.,;:!?"'’“”()]/g,"").replace(/\s+/g," ").trim();
@@ -726,6 +727,7 @@ function toast(msg){
 
 initTheme();
 initTimer();
+initBackup();
 initHighlight({onSaveWord:saveWordFromSelection});
 initLearnerName();
 document.title="IELTS Marathon 21 Day — Luyện đề Ngày 1–21";
