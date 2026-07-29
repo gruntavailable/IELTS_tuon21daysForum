@@ -10,8 +10,14 @@ vì khi gộp chúng nằm chung một phạm vi. Script sẽ báo lỗi nếu p
 import base64, mimetypes, re, sys, os
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+# Thu tu quan trong: cac bang chu va i18n/index.js phai dung truoc moi module goi t().
 JS_FILES = [
     "src/js/store.js",
+    "src/i18n/vi.js",
+    "src/i18n/en.js",
+    "src/i18n/days-en.js",
+    "src/i18n/instr-en.js",
+    "src/i18n/index.js",
     "src/data/dictionary.js",
     "src/js/theme.js",
     "src/js/timer.js",
@@ -58,15 +64,39 @@ def inline_assets(src):
 def build():
     css = read("src/css/styles.css")
 
-    days = []
+    # Moi day{i}.js co the khai bao vai hang dung chung (TF, YN, HEADINGS, ...)
+    # truoc "export default". Chung phai duoc keo ra ngoai mang DATA, neu khong
+    # se nam giua hai phan tu cua mang va lam hong cu phap.
+    days, preamble, seen_decl = [], [], {}
     for i in range(1, 22):
-        t = read(f"src/data/day{i}.js")
-        t = t.replace('const TF = ["TRUE","FALSE","NOT GIVEN"];\n', "", 1)
-        t = t.replace("export default\n", "", 1).rstrip()
-        if not t.endswith(";"):
+        src = read(f"src/data/day{i}.js")
+        cut = src.find("export default")
+        if cut < 0:
+            sys.exit(f"day{i}.js: khong tim thay 'export default'")
+        head, body = src[:cut], src[cut:]
+
+        for m in re.finditer(
+                r"^(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=.*?;\s*$", head, re.M | re.S):
+            name, text = m.group(1), m.group(0).rstrip()
+            if seen_decl.get(name) == text:
+                continue                      # da co ban giong het, dung lai
+            if name in seen_decl:
+                # Cung ten nhung khac noi dung: doi ten rieng cho ngay nay va
+                # thay moi cho dung ten do trong than du lieu cua chinh ngay ay.
+                alias = f"{name}_d{i}"
+                text = re.sub(rf"^((?:const|let|var)\s+){re.escape(name)}\b",
+                              rf"\1{alias}", text)
+                body = re.sub(rf"\b{re.escape(name)}\b", alias, body)
+                name = alias
+            seen_decl[name] = text
+            preamble.append(text)
+
+        body = body.replace("export default\n", "", 1).rstrip()
+        if not body.endswith(";"):
             sys.exit(f"day{i}.js: khong ket thuc bang dau ';'")
-        days.append(t[:-1].rstrip())
-    data_js = ('const TF = ["TRUE","FALSE","NOT GIVEN"];\n\nconst DATA = [\n'
+        days.append(body[:-1].rstrip())
+
+    data_js = ("\n".join(preamble) + "\n\nconst DATA = [\n"
                + ",\n\n".join(days) + "\n];\n")
     data_js = inline_assets(data_js)
 

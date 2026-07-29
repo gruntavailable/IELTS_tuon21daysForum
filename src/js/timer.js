@@ -1,10 +1,12 @@
 import { get, set } from "./store.js";
+import { t, onLangChange } from "../i18n/index.js";
 
-/* Nhịp học theo Section 1.5 của sách: 60 / 90 / 150 phút. */
+/* Nhịp học theo Section 1.5 của sách: 60 / 90 / 150 phút.
+   Phần mô tả tra theo khoá nên đổi được ngôn ngữ ngay tại chỗ. */
 export const PACES = [
-  { min: 60,  label: "60′",  desc: "Một phần Reading rút gọn, một sản phẩm chính và một lượt sửa. Giữ bản đầu, ghi tối đa ba lỗi." },
-  { min: 90,  label: "90′",  desc: "Nhịp mặc định: tiếp nhận, tạo sản phẩm và vận dụng lại. Hoàn thành sản phẩm chính và phiếu tự kiểm tra." },
-  { min: 150, label: "150′", desc: "Toàn bộ bài, nhiệm vụ mở rộng và lượt rà soát chi tiết. Cần bản viết lại hoặc lần thực hiện thứ hai." }
+  { min: 60,  label: "60′",  desc: "pace.60.desc" },
+  { min: 90,  label: "90′",  desc: "pace.90.desc" },
+  { min: 150, label: "150′", desc: "pace.150.desc" }
 ];
 
 const two = n => String(n).padStart(2, "0");
@@ -49,12 +51,13 @@ function paint(){
   const sub = $("tmrSub");
   if (sub){
     sub.textContent = left <= 0
-      ? `Đã quá giờ · đã học ${Math.floor(used / 60)} phút`
-      : `Nhịp ${paceMin} phút · đã học ${Math.floor(used / 60)} phút`;
+      ? t("timer.over", { used: Math.floor(used / 60) })
+      : t("timer.sub", { min: paceMin, used: Math.floor(used / 60) });
   }
 
   const btn = $("tmrToggle");
-  if (btn) btn.textContent = running ? "⏸  Tạm dừng" : (used > 0 ? "▶  Tiếp tục" : "▶  Bắt đầu");
+  if (btn) btn.textContent = running ? t("timer.pause")
+                                     : (used > 0 ? t("timer.resume") : t("timer.start"));
 }
 
 function tmrPersist(){
@@ -92,21 +95,33 @@ function paintPaces(){
   });
 }
 
+/* Phần chữ cố định của hộp đồng hồ — gọi lại khi đổi ngôn ngữ. */
+function paintLabels(){
+  const head = $("tmrHead");
+  if (head) head.textContent = t("timer.heading");
+  const rst = $("tmrReset");
+  if (rst) rst.title = t("timer.reset.title");
+  document.querySelectorAll("#tmrPaces .btn").forEach(b => {
+    const p = PACES.find(x => x.min === Number(b.dataset.min));
+    if (p) b.title = t(p.desc);
+  });
+}
+
 export function initTimer(){
   const box = $("timerBox");
   if (!box) return;
 
   box.innerHTML = `
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--tx2);font-weight:700;margin-bottom:6px">Đồng hồ bấm giờ</div>
+    <div id="tmrHead" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--tx2);font-weight:700;margin-bottom:6px"></div>
     <div class="tmr-paces" id="tmrPaces">
-      ${PACES.map(p => `<button class="btn sm" data-min="${p.min}" title="${p.desc.replace(/"/g,"&quot;")}">${p.label}</button>`).join("")}
+      ${PACES.map(p => `<button class="btn sm" data-min="${p.min}">${p.label}</button>`).join("")}
     </div>
     <div class="tmr-face" id="tmrFace">00:00</div>
     <div class="tmr-sub" id="tmrSub"></div>
     <div class="tmr-prog"><i id="tmrBarI"></i></div>
     <div class="tmr-ctl">
-      <button class="btn sm acc" id="tmrToggle">▶  Bắt đầu</button>
-      <button class="btn sm" id="tmrReset" title="Đặt lại về 00:00">↺</button>
+      <button class="btn sm acc" id="tmrToggle"></button>
+      <button class="btn sm" id="tmrReset">↺</button>
     </div>
   `;
 
@@ -120,9 +135,12 @@ export function initTimer(){
   });
   $("tmrToggle").onclick = () => running ? pause() : start();
   $("tmrReset").onclick  = () => {
-    if (totalElapsed() > 0 && !confirm("Đặt lại đồng hồ về 00:00?")) return;
+    if (totalElapsed() > 0 && !confirm(t("timer.reset.confirm"))) return;
     reset();
   };
+
+  onLangChange(() => { paintLabels(); paint(); });
+  paintLabels();
 
   // keep the stored value fresh if the tab closes mid-run
   window.addEventListener("beforeunload", () => { if (running) tmrPersist(); });

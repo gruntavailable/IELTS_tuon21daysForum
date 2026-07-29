@@ -6,6 +6,9 @@ import { renderTracker, renderDayChecklist, renderErrorLog, trackerStats } from 
 import { initHighlight, loadHighlightsFor, clearDayHighlights, highlightCount } from "./highlight.js";
 import { addWord, renderVocabTable, vocabCount, onVocabChange, exportCSV, clearWords, allWords } from "./vocab.js";
 import { initBackup } from "./backup.js";
+import { t, initI18n, onLangChange, applyStatic } from "../i18n/index.js";
+import { dayTitleEN, blockTitleEN, blockTagEN, DAY_FOCUS_EN } from "../i18n/days-en.js";
+import { instrEN } from "../i18n/instr-en.js";
 
 /* ================= ENGINE ================= */
 const norm = s => (s||"").toLowerCase().replace(/[.,;:!?"'’“”()]/g,"").replace(/\s+/g," ").trim();
@@ -18,10 +21,13 @@ const navEl = document.getElementById("nav");
 function initLearnerName(){
   const side=document.getElementById("side");
   const row=el("label","learner-name");
-  row.appendChild(el("span",null,"Tên người làm bài"));
+  const label=el("span",null,t("learner.label"));
+  label.dataset.i18n="learner.label";
+  row.appendChild(label);
   const input=document.createElement("input");
   input.type="text"; input.autocomplete="name";
-  input.placeholder="Nhập họ và tên…";
+  input.placeholder=t("learner.ph");
+  input.dataset.i18nPh="learner.ph";
   input.value=store.__learnerName||"";
   input.addEventListener("input",()=>{ store.__learnerName=input.value; save(); });
   row.appendChild(input);
@@ -32,21 +38,21 @@ function renderNav(){
   DATA.forEach(d=>{
     const b=document.createElement("button");
     b.className="navday"+(d.id===cur?" on":"");
-    b.innerHTML = `Ngày ${String(d.id).padStart(2,"0")}<small>${d.title.split("— ")[1]}</small>`;
+    b.innerHTML = `${t("nav.day",{n:String(d.id).padStart(2,"0")})}<small>${daySubtitle(d)}</small>`;
     b.onclick=()=>go(d.id);
     navEl.appendChild(b);
   });
-  const t=document.createElement("button");
+  const trk=document.createElement("button");
   const st=trackerStats();
-  t.className="navday"+(cur==="tracker"?" on":"");
-  t.style.marginTop="8px";
-  t.innerHTML=`📋 Bảng theo dõi 21 ngày<small>${st.done}/${st.total} ngày đã hoàn thành</small>`;
-  t.onclick=()=>go("tracker");
-  navEl.appendChild(t);
+  trk.className="navday"+(cur==="tracker"?" on":"");
+  trk.style.marginTop="8px";
+  trk.innerHTML=`${t("nav.tracker")}<small>${t("nav.tracker.sub",{done:st.done,total:st.total})}</small>`;
+  trk.onclick=()=>go("tracker");
+  navEl.appendChild(trk);
 
   const v=document.createElement("button");
   v.className="navday"+(cur==="vocab"?" on":"");
-  v.innerHTML=`📒 Sổ từ vựng<small>${vocabCount()} từ đã lưu</small>`;
+  v.innerHTML=`${t("nav.vocab")}<small>${t("nav.vocab.sub",{n:vocabCount()})}</small>`;
   v.onclick=()=>go("vocab");
   navEl.appendChild(v);
 }
@@ -58,6 +64,21 @@ document.addEventListener("tracker:changed",()=>{ renderNav(); });
 
 /* ---- helpers ---- */
 function el(tag,cls,html){ const e=document.createElement(tag); if(cls)e.className=cls; if(html!==undefined)e.innerHTML=html; return e; }
+
+/* Chỉ phần tiêu đề, nhãn và hướng dẫn của bài học được dịch. Ngữ liệu tiếng Anh
+   (passage, câu hỏi, bài mẫu) và phần giải thích giữ nguyên như trong sách. */
+const isEN = () => document.documentElement.getAttribute("lang")==="en";
+function bTitle(s){ return isEN() ? blockTitleEN(s) : s; }
+function bTag(s){ return isEN() ? blockTagEN(s) : s; }
+function bInstr(s){ return isEN() ? instrEN(s) : s; }
+function dTitle(d){ return isEN() ? dayTitleEN(d.title) : d.title; }
+function dFocus(d){ return isEN() ? (DAY_FOCUS_EN[d.id] || d.focus) : d.focus; }
+/* Nhãn ngắn trong tiêu đề khối: "Ngày 07" ở cột điều hướng cần đổi theo ngôn ngữ. */
+function daySubtitle(d){
+  const src = dTitle(d);
+  const parts = src.split("— ");
+  return parts.length > 1 ? parts.slice(1).join("— ") : src;
+}
 function expBox(it){
   let h="";
   if(it.ev) h+=`<div class="ev">📍 ${it.ev}</div>`;
@@ -68,28 +89,28 @@ function expBox(it){
 /* ---- renderers ---- */
 function rNote(b){
   const w=el("div","block");
-  w.appendChild(el("h3",null,`${b.title} <span class="tag">${b.tag||"Ghi chú"}</span>`));
+  w.appendChild(el("h3",null,`${bTitle(b.title)} <span class="tag">${b.tag?bTag(b.tag):t("tag.note")}</span>`));
   w.appendChild(el("div",null,b.html));
   return w;
 }
 function rPassage(b){
   const w=el("div","block");
-  const h=el("h3",null,`${b.title} <span class="tag">Passage</span>`);
+  const h=el("h3",null,`${bTitle(b.title)} <span class="tag">${t("tag.passage")}</span>`);
   w.appendChild(h);
   if(b.subtitle) w.appendChild(el("p","instr",`<b style="color:var(--tx);font-size:15px">${b.subtitle}</b>`));
   const p=el("div","passage");
-  b.paras.forEach(([l,t])=> p.appendChild(el("p",null,`<span class="pl">${l}</span>${t}`)));
+  b.paras.forEach(([l,txt])=> p.appendChild(el("p",null,`<span class="pl">${l}</span>${txt}`)));
   w.appendChild(p);
-  const tg=el("button","btn sm pcollapse","Thu gọn bài đọc");
+  const tg=el("button","btn sm pcollapse",t("passage.collapse"));
   tg.style.marginTop="8px";
-  tg.onclick=()=>{ p.classList.toggle("collapsed"); tg.textContent = p.classList.contains("collapsed")?"Mở rộng bài đọc":"Thu gọn bài đọc"; };
+  tg.onclick=()=>{ p.classList.toggle("collapsed"); tg.textContent = p.classList.contains("collapsed")?t("passage.expand"):t("passage.collapse"); };
   w.appendChild(tg);
   return w;
 }
 function rQuiz(b,d,bi){
   const w=el("div","block");
-  w.appendChild(el("h3",null,`${b.title} <span class="tag">${b.tag||""}</span>`));
-  if(b.instr) w.appendChild(el("p","instr",b.instr));
+  w.appendChild(el("h3",null,`${bTitle(b.title)} <span class="tag">${b.tag?bTag(b.tag):""}</span>`));
+  if(b.instr) w.appendChild(el("p","instr",bInstr(b.instr)));
   b.items.forEach((it,ii)=>{
     const k=key(d,bi,ii);
     const q=el("div","q");
@@ -111,7 +132,7 @@ function rQuiz(b,d,bi){
     if(ex){ ex.classList.add("hidden"); q.appendChild(ex); }
     const editRow=el("div");
     editRow.style.marginLeft="33px"; editRow.style.marginTop="6px";
-    const editBtn=el("button","btn sm","✏️ Sửa đáp án");
+    const editBtn=el("button","btn sm",t("q.edit"));
     editRow.appendChild(editBtn);
     editRow.classList.add("hidden");
     q.appendChild(editRow);
@@ -143,8 +164,8 @@ function rQuiz(b,d,bi){
 }
 function rGap(b,d,bi){
   const w=el("div","block");
-  w.appendChild(el("h3",null,`${b.title} <span class="tag">${b.tag||""}</span>`));
-  if(b.instr) w.appendChild(el("p","instr",b.instr));
+  w.appendChild(el("h3",null,`${bTitle(b.title)} <span class="tag">${b.tag?bTag(b.tag):""}</span>`));
+  if(b.instr) w.appendChild(el("p","instr",bInstr(b.instr)));
   b.items.forEach((it,ii)=>{
     const k=key(d,bi,ii);
     const q=el("div","q");
@@ -154,9 +175,9 @@ function rGap(b,d,bi){
     head.appendChild(nEl); head.appendChild(el("div","qt",it.q));
     q.appendChild(head);
     const row=el("div","gaprow");
-    const inp=el("input","gap"); inp.type="text"; inp.placeholder="Nhập đáp án…";
-    const chk=el("button","btn sm","Kiểm tra");
-    const editBtn=el("button","btn sm","✏️ Sửa đáp án"); editBtn.classList.add("hidden");
+    const inp=el("input","gap"); inp.type="text"; inp.placeholder=t("q.gap.ph");
+    const chk=el("button","btn sm",t("q.gap.check"));
+    const editBtn=el("button","btn sm",t("q.edit")); editBtn.classList.add("hidden");
     row.appendChild(inp); row.appendChild(chk); row.appendChild(editBtn); q.appendChild(row);
     const ex=el("div","exp"); ex.classList.add("hidden"); q.appendChild(ex);
     function grade(){
@@ -186,7 +207,7 @@ function rGap(b,d,bi){
       const ok = st===1;
       nEl.className="qn "+(ok?"ok":"bad");
       inp.className="gap "+(ok?"ok":"bad");
-      ex.innerHTML = `<b>Đáp án:</b> ${it.a[0]}${it.a.length>1?` <span style="color:var(--tx2)">(cũng chấp nhận: ${it.a.slice(1).join(" / ")})</span>`:""}`
+      ex.innerHTML = `<b>${t("q.gap.answer")}</b> ${it.a[0]}${it.a.length>1?` <span style="color:var(--tx2)">${t("q.gap.alsoAccepted",{list:it.a.slice(1).join(" / ")})}</span>`:""}`
         + (it.ev?`<div class="ev" style="margin-top:6px">📍 ${it.ev}</div>`:"")
         + (it.exp?`<div style="margin-top:6px">${it.exp}</div>`:"");
       ex.classList.remove("hidden");
@@ -199,8 +220,8 @@ function rGap(b,d,bi){
 }
 function rFree(b,d,bi){
   const w=el("div","block");
-  w.appendChild(el("h3",null,`${b.title} <span class="tag">${b.tag||"Tự luận"}</span>`));
-  if(b.instr) w.appendChild(el("p","instr",b.instr));
+  w.appendChild(el("h3",null,`${bTitle(b.title)} <span class="tag">${b.tag?bTag(b.tag):t("tag.free")}</span>`));
+  if(b.instr) w.appendChild(el("p","instr",bInstr(b.instr)));
   b.items.forEach((it,ii)=>{
     const k=key(d,bi,ii)+"_t";
     const q=el("div","q");
@@ -208,30 +229,30 @@ function rFree(b,d,bi){
     head.appendChild(el("div","qn",String(ii+1)));
     head.appendChild(el("div","qt",`<b>${it.q}</b>`));
     q.appendChild(head);
-    const ta=el("textarea","free"); ta.placeholder="Viết câu của bạn…"; ta.value=store[k]||"";
+    const ta=el("textarea","free"); ta.placeholder=t("q.free.ph"); ta.value=store[k]||"";
     ta.addEventListener("input",()=>{ store[k]=ta.value; save(); });
     q.appendChild(ta);
-    const bt=el("button","btn sm","Xem đáp án gợi ý"); bt.style.marginTop="8px";
-    const md=el("div","model hidden",`<span class="lb">Gợi ý</span>${it.model}${it.exp?`<div style="margin-top:7px;color:var(--tx2)">${it.exp}</div>`:""}`);
-    bt.onclick=()=>{ md.classList.toggle("hidden"); bt.textContent = md.classList.contains("hidden")?"Xem đáp án gợi ý":"Ẩn đáp án"; };
+    const bt=el("button","btn sm",t("q.free.show")); bt.style.marginTop="8px";
+    const md=el("div","model hidden",`<span class="lb">${t("q.free.label")}</span>${it.model}${it.exp?`<div style="margin-top:7px;color:var(--tx2)">${it.exp}</div>`:""}`);
+    bt.onclick=()=>{ md.classList.toggle("hidden"); bt.textContent = md.classList.contains("hidden")?t("q.free.show"):t("q.free.hide"); };
     q.appendChild(bt); q.appendChild(md);
-    q._meta={type:"free",reveal:()=>{ md.classList.remove("hidden"); bt.textContent="Ẩn đáp án"; }};
+    q._meta={type:"free",reveal:()=>{ md.classList.remove("hidden"); bt.textContent=t("q.free.hide"); }};
     w.appendChild(q);
   });
   return w;
 }
 function rVocab(b,d,bi){
   const w=el("div","block");
-  w.appendChild(el("h3",null,`${b.title} <span class="tag">${b.tag||"Vocabulary"}</span>`));
-  if(b.instr) w.appendChild(el("p","instr",b.instr));
-  const t=el("table","vt");
-  t.innerHTML="<tr><th>Cụm từ</th><th>Nghĩa / cấu trúc</th><th>Câu ví dụ</th></tr>"+
+  w.appendChild(el("h3",null,`${bTitle(b.title)} <span class="tag">${b.tag?bTag(b.tag):t("tag.vocabulary")}</span>`));
+  if(b.instr) w.appendChild(el("p","instr",bInstr(b.instr)));
+  const tbl=el("table","vt");
+  tbl.innerHTML=`<tr><th>${t("vocabBlock.th.phrase")}</th><th>${t("vocabBlock.th.meaning")}</th><th>${t("vocabBlock.th.example")}</th></tr>`+
     b.items.map(r=>`<tr><td class="ph">${r[0]}</td><td>${r[1]}</td><td class="ex">${r[2]}</td></tr>`).join("");
-  const tw=el("div","tablewrap"); tw.appendChild(t);
+  const tw=el("div","tablewrap"); tw.appendChild(tbl);
   w.appendChild(tw);
   /* quiz */
   const qw=el("div"); qw.style.marginTop="14px";
-  const start=el("button","btn sm","▶ Luyện nhanh 8 câu (nghĩa → cụm từ)");
+  const start=el("button","btn sm",t("vocabBlock.quizStart"));
   qw.appendChild(start); w.appendChild(qw);
   start.onclick=()=>{
     start.remove();
@@ -241,13 +262,13 @@ function rVocab(b,d,bi){
       const q=el("div","q");
       const head=el("div","qh");
       const nEl=el("div","qn",String(ii+1));
-      head.appendChild(nEl); head.appendChild(el("div","qt",`Cụm nào mang nghĩa: <b>${it[1]}</b>?`));
+      head.appendChild(nEl); head.appendChild(el("div","qt",t("vocabBlock.quizQ",{meaning:it[1]})));
       q.appendChild(head);
       const wrong=b.items.filter(x=>x!==it).sort(()=>Math.random()-.5).slice(0,3);
       const opts=[it,...wrong].sort(()=>Math.random()-.5);
       const ow=el("div","opts"); const btns=[];
       let expEl=null;
-      const editBtn=el("button","btn sm","✏️ Sửa đáp án"); editBtn.classList.add("hidden");
+      const editBtn=el("button","btn sm",t("q.edit")); editBtn.classList.add("hidden");
       editBtn.style.marginLeft="33px"; editBtn.style.marginTop="6px";
       function reset(){
         btns.forEach(x=>{x.disabled=false;x.className="opt";});
@@ -321,7 +342,7 @@ function sourceHtml(text){
 function rSource(b){
   const box=el("div","block sourceblock");
   const tag=sourceTag(b.title);
-  box.appendChild(el("h3",null,`${b.n} ${b.title} <span class="tag">${tag}</span>`));
+  box.appendChild(el("h3",null,`${b.n} ${bTitle(b.title)} <span class="tag">${bTag(tag)}</span>`));
   if(b.figures){
     const gallery=el("div","sourcefigures");
     b.figures.forEach(fig=>{
@@ -348,9 +369,9 @@ function rSource(b){
   const needsWork=sourceNeedsWork(b.title);
   if(needsWork){
     const ta=el("textarea","free srcwork");
-    ta.placeholder=tag==="Writing" ? "Viết bài của bạn ở đây…" :
-      tag==="Speaking" ? "Ghi dàn ý, bản chép lời hoặc phần tự đánh giá ở đây…" :
-      "Ghi đáp án và phần làm bài của bạn ở đây…";
+    ta.placeholder=tag==="Writing" ? t("source.ph.writing") :
+      tag==="Speaking" ? t("source.ph.speaking") :
+      t("source.ph.default");
     const sk=sourceWorkKey(b);
     ta.value=store[sk]||"";
     ta.addEventListener("input",()=>{ store[sk]=ta.value; save(); updBar(); });
@@ -360,31 +381,32 @@ function rSource(b){
 }
 function rWriting(b){
   const w=el("div","block");
-  w.appendChild(el("h3",null,`${b.title} <span class="tag">${b.tag||"Writing"}</span>`));
-  w.appendChild(el("div","model",`<span class="lb">Đề bài</span>${b.prompt}`));
-  if(b.instr) w.appendChild(el("p","instr",b.instr));
-  const ta=el("textarea","free"); ta.style.minHeight="200px"; ta.placeholder="Viết bài của bạn ở đây…";
+  w.appendChild(el("h3",null,`${bTitle(b.title)} <span class="tag">${b.tag?bTag(b.tag):t("tag.writing")}</span>`));
+  w.appendChild(el("div","model",`<span class="lb">${t("writing.prompt")}</span>${b.prompt}`));
+  if(b.instr) w.appendChild(el("p","instr",bInstr(b.instr)));
+  const ta=el("textarea","free"); ta.style.minHeight="200px"; ta.placeholder=t("writing.ph");
+  /* khoá lưu bám theo tiêu đề gốc tiếng Việt để bài đã viết không mất khi đổi ngôn ngữ */
   const kk="w_"+b.title.replace(/\W/g,"");
   ta.value=store[kk]||"";
   const cnt=el("p","instr","");
-  const upd=()=>{ const n=(ta.value.trim().match(/\S+/g)||[]).length; cnt.innerHTML=`Số từ: <b style="color:var(--tx)">${n}</b>`; };
+  const upd=()=>{ const n=(ta.value.trim().match(/\S+/g)||[]).length; cnt.innerHTML=t("writing.wordCount",{n}); };
   ta.addEventListener("input",()=>{ store[kk]=ta.value; save(); upd(); }); upd();
   w.appendChild(ta); w.appendChild(cnt);
   if(b.check){
-    w.appendChild(el("p","instr","<b style='color:var(--tx)'>Tự kiểm tra trước khi kết thúc</b>"));
+    w.appendChild(el("p","instr",`<b style='color:var(--tx)'>${t("writing.selfCheck")}</b>`));
     w.appendChild(el("ul","tips checklist",b.check.map(c=>`<li>${c}</li>`).join("")));
   }
-  const bt=el("button","btn sm","Xem bài mẫu");
-  const md=el("div","model hidden",`<span class="lb">Bài mẫu tham khảo</span>${b.model}`);
-  bt.onclick=()=>{ md.classList.toggle("hidden"); bt.textContent=md.classList.contains("hidden")?"Xem bài mẫu":"Ẩn bài mẫu"; };
+  const bt=el("button","btn sm",t("writing.showModel"));
+  const md=el("div","model hidden",`<span class="lb">${t("writing.modelLabel")}</span>${b.model}`);
+  bt.onclick=()=>{ md.classList.toggle("hidden"); bt.textContent=md.classList.contains("hidden")?t("writing.showModel"):t("writing.hideModel"); };
   w.appendChild(bt); w.appendChild(md);
-  w._reveal=()=>{ md.classList.remove("hidden"); bt.textContent="Ẩn bài mẫu"; };
+  w._reveal=()=>{ md.classList.remove("hidden"); bt.textContent=t("writing.hideModel"); };
   return w;
 }
 function rSpeaking(b){
   const w=el("div","block");
-  w.appendChild(el("h3",null,`${b.title} <span class="tag">${b.tag||"Speaking"}</span>`));
-  if(b.instr) w.appendChild(el("p","instr",b.instr));
+  w.appendChild(el("h3",null,`${bTitle(b.title)} <span class="tag">${b.tag?bTag(b.tag):t("tag.speaking")}</span>`));
+  if(b.instr) w.appendChild(el("p","instr",bInstr(b.instr)));
   b.parts.forEach(p=>{
     w.appendChild(el("p",null,`<b style="color:var(--acc)">${p.label}</b>`));
     p.qs.forEach((qa,i)=>{
@@ -393,12 +415,12 @@ function rSpeaking(b){
       head.appendChild(el("div","qn",String(i+1)));
       head.appendChild(el("div","qt",qa[0]));
       q.appendChild(head);
-      const bt=el("button","btn sm","Xem câu trả lời mẫu"); bt.style.marginLeft="33px";
-      const md=el("div","model hidden",`<span class="lb">Model answer</span>${qa[1]}`);
+      const bt=el("button","btn sm",t("speaking.showModel")); bt.style.marginLeft="33px";
+      const md=el("div","model hidden",`<span class="lb">${t("speaking.modelLabel")}</span>${qa[1]}`);
       md.style.marginLeft="33px";
-      bt.onclick=()=>{ md.classList.toggle("hidden"); bt.textContent=md.classList.contains("hidden")?"Xem câu trả lời mẫu":"Ẩn"; };
+      bt.onclick=()=>{ md.classList.toggle("hidden"); bt.textContent=md.classList.contains("hidden")?t("speaking.showModel"):t("speaking.hideModel"); };
       q.appendChild(bt); q.appendChild(md);
-      q._meta={type:"free",reveal:()=>{ md.classList.remove("hidden"); bt.textContent="Ẩn"; }};
+      q._meta={type:"free",reveal:()=>{ md.classList.remove("hidden"); bt.textContent=t("speaking.hideModel"); }};
       w.appendChild(q);
     });
   });
@@ -454,12 +476,12 @@ function renderDay(){
   const d=DATA.find(x=>x.id===cur);
   mainEl.innerHTML="";
   dayNodes=[];
-  mainEl.appendChild(el("h2","daytitle",d.title));
-  mainEl.appendChild(el("p","dayfocus",d.focus));
+  mainEl.appendChild(el("h2","daytitle",dTitle(d)));
+  mainEl.appendChild(el("p","dayfocus",dFocus(d)));
 
   /* Quy trình buổi học + tiêu chí hoàn thành (sách, mục 1.4 & 1.13) */
   const ckBlock=el("div","block");
-  ckBlock.appendChild(el("h3",null,`Quy trình buổi học <span class="tag">Checklist</span>`));
+  ckBlock.appendChild(el("h3",null,`${t("day.process")} <span class="tag">${t("tag.checklist")}</span>`));
   const ckMount=el("div");
   ckBlock.appendChild(ckMount);
   mainEl.appendChild(ckBlock);
@@ -498,8 +520,8 @@ function renderDay(){
 
   /* Từ vựng đã nhớ trong ngày này */
   const vBlock=el("div","block");
-  vBlock.appendChild(el("h3",null,`Từ vựng đã nhớ hôm nay <span class="tag">Sổ từ</span>`));
-  vBlock.appendChild(el("p","instr","Bôi đen một từ hoặc cụm từ bất kỳ trong bài rồi bấm <b style=\"color:var(--tx)\">📌 Nhớ từ</b>. Nghĩa tiếng Việt, phiên âm và câu band 7 bạn tự tra và tự gõ — đó chính là bước học."));
+  vBlock.appendChild(el("h3",null,`${t("day.vocabToday")} <span class="tag">${t("tag.vocabBook")}</span>`));
+  vBlock.appendChild(el("p","instr",t("day.vocabToday.hint")));
   const vMount=el("div");
   vBlock.appendChild(vMount);
   mainEl.appendChild(vBlock);
@@ -508,7 +530,7 @@ function renderDay(){
 
   /* Ba lỗi ưu tiên của ngày (sách, mục 1.8) */
   const errBlock=el("div","block");
-  errBlock.appendChild(el("h3",null,`Ba lỗi ưu tiên hôm nay <span class="tag">Phiếu lỗi</span>`));
+  errBlock.appendChild(el("h3",null,`${t("day.topErrors")} <span class="tag">${t("tag.errorSheet")}</span>`));
   const errMount=el("div");
   errBlock.appendChild(errMount);
   mainEl.appendChild(errBlock);
@@ -535,16 +557,16 @@ function wrapTables(){
 function renderVocabView(){
   mainEl.innerHTML="";
   dayNodes=[]; dayVocabMount=null; setWide(false);
-  mainEl.appendChild(el("h2","daytitle","Sổ từ vựng"));
-  mainEl.appendChild(el("p","dayfocus","Toàn bộ từ và cụm từ bạn đã bấm “Nhớ từ” trong 21 ngày học. Bấm vào bất kỳ ô nào để sửa; nội dung tự lưu khi bạn bấm ra ngoài."));
+  mainEl.appendChild(el("h2","daytitle",t("vocab.title")));
+  mainEl.appendChild(el("p","dayfocus",t("vocab.intro")));
 
   const box=el("div","block");
-  const head=el("h3",null,`Danh sách từ <span class="tag">${vocabCount()} từ</span>`);
+  const head=el("h3",null,`${t("vocab.listTitle")} <span class="tag">${t("vocab.count",{n:vocabCount()})}</span>`);
   box.appendChild(head);
   const bar=el("div");
   bar.style.cssText="display:flex;gap:6px;margin-bottom:12px";
-  const bExp=el("button","btn sm","⬇  Xuất CSV");
-  const bClr=el("button","btn sm","🗑  Xoá hết");
+  const bExp=el("button","btn sm",t("vocab.exportCSV"));
+  const bClr=el("button","btn sm",t("vocab.clearAll"));
   bar.appendChild(bExp); bar.appendChild(bClr);
   box.appendChild(bar);
   const mount=el("div");
@@ -552,23 +574,23 @@ function renderVocabView(){
   mainEl.appendChild(box);
   /* Xoá một dòng thì bảng tự vẽ lại; onChange chỉ để đồng bộ tiêu đề và thanh dưới. */
   const syncVocabHead=()=>{
-    head.innerHTML=`Danh sách từ <span class="tag">${vocabCount()} từ</span>`;
+    head.innerHTML=`${t("vocab.listTitle")} <span class="tag">${t("vocab.count",{n:vocabCount()})}</span>`;
     updBar();
   };
   renderVocabTable(mount,{onChange:syncVocabHead});
-  bExp.onclick=()=>{ if(!vocabCount()){ alert("Sổ từ vựng đang trống."); return; } exportCSV(); };
+  bExp.onclick=()=>{ if(!vocabCount()){ alert(t("vocab.empty")); return; } exportCSV(); };
   bClr.onclick=()=>{
-    if(!vocabCount()){ alert("Sổ từ vựng đang trống."); return; }
-    if(confirm(`Xoá toàn bộ ${vocabCount()} từ trong sổ?`)){ clearWords(); renderVocabView(); }
+    if(!vocabCount()){ alert(t("vocab.empty")); return; }
+    if(confirm(t("vocab.clearConfirm",{n:vocabCount()}))){ clearWords(); renderVocabView(); }
   };
 
   const tip=el("div","block");
-  tip.innerHTML=`<h3>Cách dùng sổ từ <span class="tag">Gợi ý</span></h3>
+  tip.innerHTML=`<h3>${t("vocab.howto.title")} <span class="tag">${t("tag.hint")}</span></h3>
     <ul class="tips">
-      <li>Ba cột nghĩa, phiên âm và câu đều để trống cố ý: <b>tự tra và tự gõ</b> thì từ mới vào được trí nhớ dài hạn.</li>
-      <li>Một cụm chỉ được coi là đã học khi bạn <b>tự viết được câu của mình</b> — cột cuối để làm việc đó.</li>
-      <li>Ôn cách quãng: xem lại từ của Ngày 1 vào Ngày 3, rồi vào Ngày 7 — đúng nhịp kiểm tra lại ở mục 2.2.</li>
-      <li>Xuất CSV để mở bằng Excel hoặc nạp vào Anki khi muốn ôn bằng thẻ ghi nhớ.</li>
+      <li>${t("vocab.howto.1")}</li>
+      <li>${t("vocab.howto.2")}</li>
+      <li>${t("vocab.howto.3")}</li>
+      <li>${t("vocab.howto.4")}</li>
     </ul>`;
   mainEl.appendChild(tip);
 
@@ -580,33 +602,30 @@ function renderVocabView(){
 function renderTrackerView(){
   mainEl.innerHTML="";
   dayNodes=[]; dayVocabMount=null; setWide(false);
-  mainEl.appendChild(el("h2","daytitle","Bảng theo dõi 21 ngày"));
-  mainEl.appendChild(el("p","dayfocus","Mỗi dòng là một ngày và một sản phẩm chính. Chỉ đánh dấu hoàn thành khi sản phẩm đã được lưu, lỗi quan trọng nhất đã được gọi tên và ngày kiểm tra lại đã được xác định."));
+  mainEl.appendChild(el("h2","daytitle",t("tracker.title")));
+  mainEl.appendChild(el("p","dayfocus",t("tracker.intro")));
 
   const rule=el("div","block");
-  rule.innerHTML=`<h3>Quy tắc đánh dấu <span class="tag">Hướng dẫn</span></h3>
-    <div class="model"><span class="lb">Dấu hoàn thành</span>
-    Xác nhận một chu trình đã khép lại: bản làm đầu, bước đối chiếu và ít nhất một thao tác sửa.
-    Không cần kết quả hoàn hảo, nhưng phải lưu được bằng chứng về lỗi và cách sửa.</div>
-    <p class="instr" style="margin:12px 0 0">Cột <b style="color:var(--tx)">Lỗi lớn nhất</b> chỉ ghi một lỗi có ảnh hưởng rõ nhất, đủ cụ thể để biết phải làm gì ở lần sau.
-    Cột <b style="color:var(--tx)">Kiểm tra lại</b> ghi ngày sẽ làm lại câu hỏi, viết lại đoạn hoặc ghi âm lần hai. ★ = mốc đánh giá (Ngày 7, 14, 21).</p>`;
+  rule.innerHTML=`<h3>${t("tracker.rule.title")} <span class="tag">${t("tag.guide")}</span></h3>
+    <div class="model"><span class="lb">${t("tracker.rule.label")}</span>
+    ${t("tracker.rule.body")}</div>
+    <p class="instr" style="margin:12px 0 0">${t("tracker.rule.note")}</p>`;
   mainEl.appendChild(rule);
 
   const tb=el("div","block");
-  tb.appendChild(el("h3",null,`Tiến độ <span class="tag">21 ngày</span>`));
+  tb.appendChild(el("h3",null,`${t("tracker.progress")} <span class="tag">${t("tracker.progress.tag")}</span>`));
   const mount=el("div");
   tb.appendChild(mount);
   mainEl.appendChild(tb);
   renderTracker(mount);
 
   const rhythm=el("div","block");
-  rhythm.innerHTML=`<h3>Nhịp kiểm tra lại <span class="tag">Mục 2.2</span></h3>
+  const rhythmRows=[1,2,3,4].map(n=>
+    `<tr><td class="ph">${t(`rhythm.r${n}.when`)}</td><td>${t(`rhythm.r${n}.what`)}</td><td>${t(`rhythm.r${n}.how`)}</td></tr>`).join("");
+  rhythm.innerHTML=`<h3>${t("rhythm.title")} <span class="tag">${t("rhythm.tag")}</span></h3>
     <div class="tablewrap"><table class="vt">
-      <tr><th>Mốc kiểm tra</th><th>Nội dung cần xem lại</th><th>Cách ghi nhận</th></tr>
-      <tr><td class="ph">Cuối mỗi ngày</td><td>Một lỗi chính và sản phẩm sau khi sửa</td><td>Ghi lỗi ở dòng tương ứng, lưu bản trước và sau khi sửa</td></tr>
-      <tr><td class="ph">Ngày 7</td><td>Các lỗi xuất hiện trong Ngày 1–6</td><td>Xác định lỗi đã giảm, lỗi còn lặp và kỹ năng cần ưu tiên ở Tuần 2</td></tr>
-      <tr><td class="ph">Ngày 14</td><td>Khả năng duy trì quy trình khi bị giới hạn thời gian</td><td>Tách lỗi kiến thức, lỗi kỹ thuật, lỗi thời gian và lỗi do thiếu tập trung</td></tr>
-      <tr><td class="ph">Ngày 21</td><td>Thay đổi giữa sản phẩm đầu vào và sản phẩm cuối</td><td>Đặt hai sản phẩm cạnh nhau và lập kế hoạch luyện tiếp trong 30 ngày</td></tr>
+      <tr><th>${t("rhythm.th.when")}</th><th>${t("rhythm.th.what")}</th><th>${t("rhythm.th.how")}</th></tr>
+      ${rhythmRows}
     </table></div>`;
   mainEl.appendChild(rhythm);
 
@@ -689,27 +708,28 @@ document.getElementById("btnRevealAll").onclick=()=>{
   });
 };
 document.getElementById("btnReset").onclick=()=>{
-  if(!confirm("Xoá toàn bộ bài làm, bảng theo dõi và bài viết đã lưu?")) return;
+  if(!confirm(t("reset.confirm"))) return;
+  /* ngôn ngữ giao diện thuộc về máy đang dùng, không phải tiến độ học */
   replace({__day:cur, __theme:store.__theme, __pace:store.__pace,
-    __learnerName:store.__learnerName});
+    __lang:store.__lang, __learnerName:store.__learnerName});
   location.reload();
 };
 
 document.getElementById("btnClearHl").onclick=()=>{
-  if(!highlightCount()){ alert("Trang này chưa có nội dung nào được bôi màu."); return; }
-  if(!confirm(`Xoá ${highlightCount()} vùng bôi màu ở trang này?`)) return;
+  if(!highlightCount()){ alert(t("hl.none")); return; }
+  if(!confirm(t("hl.clearConfirm",{n:highlightCount()}))) return;
   clearDayHighlights();
 };
 
 /* Bấm "Nhớ từ" trên popup bôi đen → lưu vào sổ từ vựng. */
 function saveWordFromSelection(text){
   const w=(text||"").trim();
-  if(!w){ toast("Chưa chọn từ nào."); return; }
-  if(w.split(/\s+/).length>12){ toast("Đoạn quá dài — hãy chọn một từ hoặc cụm ngắn."); return; }
+  if(!w){ toast(t("word.none")); return; }
+  if(w.split(/\s+/).length>12){ toast(t("word.tooLong")); return; }
   const day = typeof cur==="number" ? cur : undefined;
   const r=addWord(w,day);
-  if(r==="duplicate"){ toast(`“${w}” đã có trong sổ từ vựng.`); return; }
-  toast(`Đã thêm “${w}” vào sổ từ vựng.`);
+  if(r==="duplicate"){ toast(t("word.duplicate",{word:w})); return; }
+  toast(t("word.added",{word:w}));
   if(dayVocabMount) renderVocabTable(dayVocabMount,{day,onChange:updBar});
   renderNav();
 }
@@ -725,14 +745,18 @@ function toast(msg){
   toastT=setTimeout(()=>toastEl.classList.remove("on"),2200);
 }
 
+initI18n();
 initTheme();
 initTimer();
 initBackup();
 initHighlight({onSaveWord:saveWordFromSelection});
 initLearnerName();
-document.title="IELTS Marathon 21 Day — Luyện đề Ngày 1–21";
-const sideSub=document.querySelector("#side .sub");
-if(sideSub) sideSub.textContent="Companion — Luyện đề Ngày 1–21";
+applyStatic();          // nhãn do initLearnerName() vừa thêm cũng cần được dịch
 onVocabChange(()=>renderNav());
+
+/* Đổi ngôn ngữ thì dựng lại toàn bộ trang: chữ trong #main do JS sinh ra,
+   không gắn được data-i18n như phần HTML tĩnh. */
+onLangChange(()=>{ renderNav(); renderDay(); });
+
 renderNav();
 renderDay();

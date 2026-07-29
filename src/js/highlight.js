@@ -1,15 +1,16 @@
 import { get, set } from "./store.js";
+import { t, onLangChange } from "../i18n/index.js";
 
 /* Bôi màu nội dung: bôi đen bằng chuột → chọn màu ở popup.
    Vùng bôi được lưu theo (đường dẫn tới khối, vị trí ký tự đầu, vị trí ký tự cuối)
    nên vẫn khôi phục đúng sau khi tải lại trang. */
 
 export const COLORS = [
-  { id: "y", name: "Vàng",  dark: "rgba(240,169,46,.38)",  light: "rgba(255,214,102,.75)" },
-  { id: "g", name: "Xanh lá", dark: "rgba(47,191,113,.34)", light: "rgba(126,231,170,.72)" },
-  { id: "b", name: "Xanh dương", dark: "rgba(91,140,255,.36)", light: "rgba(150,186,255,.72)" },
-  { id: "p", name: "Hồng",  dark: "rgba(226,112,224,.34)",  light: "rgba(247,168,246,.72)" },
-  { id: "r", name: "Đỏ",    dark: "rgba(242,85,90,.32)",    light: "rgba(255,158,161,.72)" }
+  { id: "y", name: "hl.color.y", dark: "rgba(240,169,46,.38)",  light: "rgba(255,214,102,.75)" },
+  { id: "g", name: "hl.color.g", dark: "rgba(47,191,113,.34)",  light: "rgba(126,231,170,.72)" },
+  { id: "b", name: "hl.color.b", dark: "rgba(91,140,255,.36)",  light: "rgba(150,186,255,.72)" },
+  { id: "p", name: "hl.color.p", dark: "rgba(226,112,224,.34)", light: "rgba(247,168,246,.72)" },
+  { id: "r", name: "hl.color.r", dark: "rgba(242,85,90,.32)",   light: "rgba(255,158,161,.72)" }
 ];
 
 let dayKey = null;          // "hl_d1" | "hl_tracker"
@@ -105,7 +106,7 @@ function paintOne(h){
       const mark = document.createElement("mark");
       mark.className = "hl hl-" + h.color;
       mark.dataset.id = h.id;
-      mark.title = "Bấm để xoá màu";
+      mark.title = t("hl.mark.title");
       try { sub.surroundContents(mark); } catch(e){}
     });
     return true;
@@ -158,16 +159,30 @@ export function clearDayHighlights(){
 export function highlightCount(){ return list.length; }
 
 /* ---------- popup chọn màu ---------- */
+/* Chữ trên popup tra lại theo ngôn ngữ đang dùng. */
+function paintPopupLabels(){
+  if (!popup) return;
+  COLORS.forEach(c => {
+    const b = popup.querySelector(`[data-c="${c.id}"]`);
+    if (b) b.title = t(c.name);
+  });
+  const x = popup.querySelector('[data-c="x"]');
+  if (x) x.title = t("hl.clear");
+  const v = popup.querySelector("#hlVocab");
+  if (v){ v.textContent = t("hl.save"); v.title = t("hl.save.title"); }
+}
+
 function buildPopup(){
   popup = document.createElement("div");
   popup.id = "hlPop";
   popup.className = "hidden";
   popup.innerHTML = COLORS.map(c =>
-      `<button class="hl-sw hl-${c.id}" data-c="${c.id}" title="${c.name}"></button>`).join("")
-    + `<button class="hl-sw hl-x" data-c="x" title="Bỏ chọn">✕</button>`
+      `<button class="hl-sw hl-${c.id}" data-c="${c.id}"></button>`).join("")
+    + `<button class="hl-sw hl-x" data-c="x">✕</button>`
     + `<span class="hl-sep"></span>`
-    + `<button class="hl-vocab" id="hlVocab" title="Lưu vào sổ từ vựng">📌 Nhớ từ</button>`;
+    + `<button class="hl-vocab" id="hlVocab"></button>`;
   document.body.appendChild(popup);
+  paintPopupLabels();
 
   popup.addEventListener("mousedown", e => e.preventDefault());  // giữ vùng chọn
   popup.addEventListener("click", e => {
@@ -207,6 +222,12 @@ export function initHighlight(opts = {}){
   root = document.getElementById("main");
   onSaveWord = opts.onSaveWord || null;
   buildPopup();
+
+  onLangChange(() => {
+    paintPopupLabels();
+    /* các vùng đã bôi vẫn nằm nguyên trên trang, chỉ đổi tooltip */
+    if (root) root.querySelectorAll("mark.hl").forEach(m => { m.title = t("hl.mark.title"); });
+  });
 
   document.addEventListener("mouseup", e => {
     if (e.target.closest && e.target.closest("#hlPop")) return;

@@ -1,4 +1,5 @@
 import { get, set } from "./store.js";
+import { t } from "../i18n/index.js";
 
 /* Sổ từ vựng cá nhân.
    Mỗi mục: { id, word, vi, ipa, sent, day, ts }
@@ -65,14 +66,15 @@ export function clearWords(){ vPersist([]); }
 
 /* Xuất ra CSV để mở bằng Excel / Google Sheets */
 export function exportCSV(){
-  const rows = [["Từ vựng","Nghĩa tiếng Việt","Phiên âm","Câu mở rộng band 7","Ngày"]];
+  const rows = [[t("vocab.th.word"), t("vocab.th.meaning"), t("vocab.th.ipa"),
+                 t("vocab.th.sentence"), t("vocab.th.day")]];
   allWords().forEach(v => rows.push([v.word, v.vi ?? "", v.ipa, v.sent, v.day ?? ""]));
   const csv = "﻿" + rows.map(r =>
     r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "so-tu-vung-ielts.csv";
+  a.download = t("vocab.csvFile");
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -88,8 +90,7 @@ export function renderVocabTable(mount, opts = {}){
   const redraw = () => renderVocabTable(mount, opts);
 
   if (!rows.length){
-    mount.innerHTML = `<p class="instr" style="margin:0">Chưa có từ nào. Bôi đen một từ hoặc cụm từ trong bài rồi bấm
-      <b style="color:var(--tx)">📌 Nhớ từ</b> để thêm vào bảng này.</p>`;
+    mount.innerHTML = `<p class="instr" style="margin:0">${t("vocab.tableEmpty")}</p>`;
     if (opts.onChange) opts.onChange();
     return;
   }
@@ -99,18 +100,19 @@ export function renderVocabTable(mount, opts = {}){
       <table class="vt vocab">
         <tr>
           <th style="width:34px"></th>
-          <th>Từ vựng</th><th>Nghĩa tiếng Việt</th><th style="width:130px">Phiên âm</th>
-          <th>Câu mở rộng ở band 7</th><th style="width:34px"></th>
+          <th>${t("vocab.th.word")}</th><th>${t("vocab.th.meaning")}</th>
+          <th style="width:130px">${t("vocab.th.ipa")}</th>
+          <th>${t("vocab.th.sentence")}</th><th style="width:34px"></th>
         </tr>
         ${rows.map((v, i) => `
           <tr data-id="${v.id}">
             <td class="vn">${i + 1}</td>
             <td><div class="ed w" contenteditable="true" data-f="word">${vEsc(v.word)}</div>
-                ${only === undefined && v.day ? `<span class="vday">Ngày ${v.day}</span>` : ""}</td>
-            <td><div class="ed" contenteditable="true" data-f="vi" data-ph="nghĩa tiếng Việt…">${vEsc(v.vi)}</div></td>
+                ${only === undefined && v.day ? `<span class="vday">${t("vocab.rowDay", { n: v.day })}</span>` : ""}</td>
+            <td><div class="ed" contenteditable="true" data-f="vi" data-ph="${vEsc(t("vocab.ph.meaning"))}">${vEsc(v.vi)}</div></td>
             <td><div class="ed ipa" contenteditable="true" data-f="ipa" data-ph="/…/">${vEsc(v.ipa)}</div></td>
-            <td><div class="ed" contenteditable="true" data-f="sent" data-ph="viết một câu band 7 dùng cụm này…">${vEsc(v.sent)}</div></td>
-            <td><button class="vdel" type="button" title="Xoá từ này">✕</button></td>
+            <td><div class="ed" contenteditable="true" data-f="sent" data-ph="${vEsc(t("vocab.ph.sentence"))}">${vEsc(v.sent)}</div></td>
+            <td><button class="vdel" type="button" title="${vEsc(t("vocab.del.title"))}">✕</button></td>
           </tr>`).join("")}
       </table>
     </div>`;
@@ -133,7 +135,7 @@ export function renderVocabTable(mount, opts = {}){
     });
     tr.querySelector(".vdel").addEventListener("click", () => {
       const it = allWords().find(x => x.id === id);
-      if (!confirm(`Xoá “${it ? it.word : ""}” khỏi sổ từ vựng?`)) return;
+      if (!confirm(t("vocab.del.confirm", { word: it ? it.word : "" }))) return;
       stale = true;                 // ô đang focus không được ghi đè sau khi xoá
       removeWord(id);
       redraw();
