@@ -176,11 +176,13 @@ function buildPopup(){
   popup = document.createElement("div");
   popup.id = "hlPop";
   popup.className = "hidden";
-  popup.innerHTML = COLORS.map(c =>
-      `<button class="hl-sw hl-${c.id}" data-c="${c.id}"></button>`).join("")
-    + `<button class="hl-sw hl-x" data-c="x">✕</button>`
+  /* Nút nhớ từ đứng đầu: mép phải màn hình hay bị thanh công cụ của trình duyệt
+     che mất, nên phần bấm nhiều nhất được đẩy về phía trái. */
+  popup.innerHTML = `<button class="hl-vocab" id="hlVocab"></button>`
     + `<span class="hl-sep"></span>`
-    + `<button class="hl-vocab" id="hlVocab"></button>`;
+    + COLORS.map(c =>
+      `<button class="hl-sw hl-${c.id}" data-c="${c.id}"></button>`).join("")
+    + `<button class="hl-sw hl-x" data-c="x">✕</button>`;
   document.body.appendChild(popup);
   paintPopupLabels();
 
