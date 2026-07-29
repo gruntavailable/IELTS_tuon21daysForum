@@ -1,4 +1,5 @@
 import { raw, replace } from "./store.js";
+import { t } from "../i18n/index.js";
 
 /* Xuất/nhập toàn bộ tiến độ ra file .json.
    Dữ liệu chỉ nằm trong localStorage của một trình duyệt, nên đây là cách
@@ -28,10 +29,10 @@ export function summarise(db){
 }
 
 function describe(s){
-  return `• ${s.answers} câu đã làm\n`
-       + `• ${s.essays} bài viết\n`
-       + `• ${s.words} từ trong sổ từ vựng\n`
-       + `• ${s.days}/21 ngày đã hoàn thành`;
+  return t("backup.sum.answers", { n: s.answers }) + "\n"
+       + t("backup.sum.essays",  { n: s.essays  }) + "\n"
+       + t("backup.sum.words",   { n: s.words   }) + "\n"
+       + t("backup.sum.days",    { n: s.days    });
 }
 
 export function exportProgress(){
@@ -47,7 +48,7 @@ export function exportProgress(){
                         { type: "application/json;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `tien-do-ielts-21day-${stamp(new Date())}.json`;
+  a.download = t("backup.file", { stamp: stamp(new Date()) });
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -58,31 +59,31 @@ function applyFile(text){
   try {
     payload = JSON.parse(text);
   } catch (e) {
-    alert("Không đọc được file. Hãy chọn đúng file .json đã xuất từ trang này.");
+    alert(t("backup.badFile"));
     return false;
   }
 
   if (!payload || payload.format !== FORMAT || typeof payload.data !== "object"
       || payload.data === null || Array.isArray(payload.data)) {
-    alert("File này không phải bản sao tiến độ của IELTS Marathon 21 Day.");
+    alert(t("backup.notOurs"));
     return false;
   }
   if (payload.version > VERSION) {
-    alert("File được tạo bằng phiên bản mới hơn. Hãy tải lại trang rồi thử lại.");
+    alert(t("backup.newer"));
     return false;
   }
 
   const incoming = summarise(payload.data);
   const current = summarise(raw());
   const when = payload.savedAt
-    ? new Date(payload.savedAt).toLocaleString("vi-VN")
-    : "không rõ thời điểm";
+    ? new Date(payload.savedAt).toLocaleString(t("backup.locale"))
+    : t("backup.unknownTime");
 
-  const ok = confirm(
-    `Nhập tiến độ đã lưu lúc ${when}:\n\n${describe(incoming)}\n\n`
-    + `Bài làm hiện có trên máy này sẽ bị thay thế:\n\n${describe(current)}\n\n`
-    + `Tiếp tục?`
-  );
+  const ok = confirm(t("backup.confirm", {
+    when,
+    incoming: describe(incoming),
+    current: describe(current)
+  }));
   if (!ok) return false;
 
   /* Giữ giao diện sáng/tối của máy đang dùng — thiết lập này thuộc về thiết bị,
@@ -113,7 +114,7 @@ export function initBackup(){
          sau khi replace() — giống cách nút "Xoá toàn bộ bài làm" làm. */
       if (applyFile(String(reader.result))) location.reload();
     };
-    reader.onerror = () => alert("Không đọc được file. Hãy thử lại.");
+    reader.onerror = () => alert(t("backup.readError"));
     reader.readAsText(f, "utf-8");
   };
 }

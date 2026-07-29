@@ -6,37 +6,43 @@
 <title>IELTS Marathon 21 Day — Luyện đề Ngày 1–21</title>
 <link rel="stylesheet" href="src/css/styles.css">
 <script>
-  /* set the theme before first paint so the page never flashes the wrong one */
+  /* set the theme and the interface language before first paint,
+     so the page never flashes the wrong one */
   (function(){
+    var s = {};
+    try{ s = JSON.parse(localStorage.getItem("ielts_m21_16")||"{}"); }catch(e){ s = {}; }
     try{
-      var s = JSON.parse(localStorage.getItem("ielts_m21_16")||"{}");
       var t = s.__theme || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
       document.documentElement.setAttribute("data-theme", t);
     }catch(e){ document.documentElement.setAttribute("data-theme","dark"); }
+    document.documentElement.setAttribute("lang", s.__lang === "en" ? "en" : "vi");
   })();
 </script>
 </head>
 <body>
 <div id="app">
   <nav id="side">
-    <h1>IELTS Marathon 21 Day</h1>
-    <div class="sub">Companion — Luyện đề Ngày 1–21</div>
+    <h1 data-i18n="app.brand">IELTS Marathon 21 Day</h1>
+    <div class="sub" data-i18n="app.sub">Companion — Luyện đề Ngày 1–21</div>
     <div id="nav"></div>
 
     <div id="timerBox"></div>
 
     <div class="tools">
       <div class="toolrow" style="margin-bottom:5px">
+        <button class="btn sm" id="btnLang" data-i18n-title="btn.lang.title">🌐  English</button>
         <button class="btn sm" id="btnTheme">🌙  Chế độ tối</button>
-        <button class="btn sm" id="btnClearHl" title="Xoá mọi vùng bôi màu ở trang đang xem">🖍  Xoá màu</button>
       </div>
       <div class="toolrow" style="margin-bottom:5px">
-        <button class="btn sm" id="btnExport" title="Tải bài làm về máy dưới dạng file .json">⬇  Xuất tiến độ</button>
-        <button class="btn sm" id="btnImport" title="Khôi phục bài làm từ file .json đã xuất">⬆  Nhập tiến độ</button>
+        <button class="btn sm" id="btnClearHl" data-i18n="btn.clearHl" data-i18n-title="btn.clearHl.title">🖍  Xoá màu</button>
+        <button class="btn sm" id="btnExport" data-i18n="btn.export" data-i18n-title="btn.export.title">⬇  Xuất tiến độ</button>
+      </div>
+      <div class="toolrow" style="margin-bottom:5px">
+        <button class="btn sm" id="btnImport" data-i18n="btn.import" data-i18n-title="btn.import.title">⬆  Nhập tiến độ</button>
       </div>
       <input type="file" id="fileImport" accept=".json,application/json" hidden>
-      <button class="btn sm" id="btnReset" style="width:100%" title="Xoá toàn bộ bài làm, bảng theo dõi và bài viết đã lưu">Xoá toàn bộ bài làm</button>
-      <p style="font-size:11px;color:var(--tx2);margin:8px 0 0;line-height:1.5">Bôi đen nội dung bằng chuột để chọn màu. Bấm vào vùng đã bôi để xoá.</p>
+      <button class="btn sm" id="btnReset" style="width:100%" data-i18n="btn.reset" data-i18n-title="btn.reset.title">Xoá toàn bộ bài làm</button>
+      <p style="font-size:11px;color:var(--tx2);margin:8px 0 0;line-height:1.5" data-i18n="tools.hlHint">Bôi đen nội dung bằng chuột để chọn màu. Bấm vào vùng đã bôi để xoá.</p>
     </div>
   </nav>
 
@@ -47,21 +53,21 @@
 
 <div id="bar">
   <div id="barIn">
-    <span class="s">Ngày <b id="bDay">1</b></span>
+    <span class="s"><span data-i18n="bar.day">Ngày</span> <b id="bDay">1</b></span>
     <span id="bQuiz" style="display:contents">
-      <span class="s">Đã làm <b id="bDone">0</b>/<b id="bTot">0</b></span>
-      <span class="s">Đúng <span class="pill g" id="bOk">0</span> Sai <span class="pill r" id="bBad">0</span></span>
-      <span class="s">Độ chính xác <b id="bPct">–</b></span>
+      <span class="s"><span data-i18n="bar.done">Đã làm</span> <b id="bDone">0</b>/<b id="bTot">0</b></span>
+      <span class="s"><span data-i18n="bar.correct">Đúng</span> <span class="pill g" id="bOk">0</span> <span data-i18n="bar.wrong">Sai</span> <span class="pill r" id="bBad">0</span></span>
+      <span class="s"><span data-i18n="bar.accuracy">Độ chính xác</span> <b id="bPct">–</b></span>
     </span>
     <span id="bTrk" class="hidden" style="display:contents">
-      <span class="s">Ngày đã hoàn thành <span class="pill g" id="bTrkDone">0</span>/<b id="bTrkTot">21</b></span>
-      <span class="s">Tiến độ lộ trình <b id="bTrkPct">0%</b></span>
+      <span class="s"><span data-i18n="bar.daysDone">Ngày đã hoàn thành</span> <span class="pill g" id="bTrkDone">0</span>/<b id="bTrkTot">21</b></span>
+      <span class="s"><span data-i18n="bar.routeProgress">Tiến độ lộ trình</span> <b id="bTrkPct">0%</b></span>
     </span>
     <span id="bVoc" class="hidden" style="display:contents">
-      <span class="s">Từ đã lưu <b id="bVocTot">0</b></span>
-      <span class="s">Đã có câu tự viết <span class="pill g" id="bVocDone">0</span></span>
+      <span class="s"><span data-i18n="bar.wordsSaved">Từ đã lưu</span> <b id="bVocTot">0</b></span>
+      <span class="s"><span data-i18n="bar.wordsWritten">Đã có câu tự viết</span> <span class="pill g" id="bVocDone">0</span></span>
     </span>
-    <span style="margin-left:auto"><button class="btn sm" id="btnRevealAll">Hiện hết đáp án ngày này</button></span>
+    <span style="margin-left:auto"><button class="btn sm" id="btnRevealAll" data-i18n="btn.revealAll">Hiện hết đáp án ngày này</button></span>
   </div>
 </div>
 
