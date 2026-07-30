@@ -29,7 +29,7 @@ blocks:[
 <tr><td class="ph">150 phút</td><td>Trả lời mười câu thuộc hai chủ đề, bổ sung ý phản biện, luyện nhịp nói và lập một dàn ý Task 2.</td></tr>
 </table></div>`},
 
-{t:"note",title:"Sơ đồ góc nhìn trong Part 3",tag:"Speaking",html:`
+{t:"note",title:"Sơ đồ góc nhìn trong Part 3",tag:"Lý thuyết",html:`
 <p>Khi câu hỏi có phạm vi rộng, có thể xem xét <b>sáu góc nhìn</b>:</p>
 <div class="tablewrap"><table class="vt">
 <tr><th>Góc nhìn</th><th>Nội dung thường khai thác</th></tr>

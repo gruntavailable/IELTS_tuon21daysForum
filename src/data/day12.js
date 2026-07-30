@@ -29,7 +29,7 @@ Ngày 6 tập trung vào <b>thao tác quan sát</b>. Ngày 12 kiểm tra khả n
 <tr><td class="ph">150 phút</td><td>Hoàn thành một báo cáo số liệu và một báo cáo bản đồ hoặc quy trình, sau đó so sánh các dạng lỗi.</td></tr>
 </table></div>`},
 
-{t:"note",title:"Kiểm tra độ chính xác trong Task 1",tag:"Writing",html:`
+{t:"note",title:"Kiểm tra độ chính xác trong Task 1",tag:"Lý thuyết",html:`
 <p>Task 1 yêu cầu <b>báo cáo những gì hình thể hiện</b>. Vì vậy, độ chính xác bắt đầu từ cách quan sát và nhóm thông tin, rồi mới đến từ vựng và ngữ pháp.</p>
 <h4 style="margin-top:12px">Năm câu hỏi TRƯỚC khi viết</h4>
 <ol class="tips">
@@ -189,7 +189,7 @@ instr:"Sửa các câu sau và <b>nêu quy tắc</b> chi phối từng lỗi. Ki
  exp:"So sánh kép: <i>higher</i> đã là dạng so sánh hơn, không thêm <i>more</i>."},
 {q:"The old houses were replaced to apartments.",
  model:"The old houses were replaced <b>by</b> apartments. / The old houses were converted <b>into</b> apartments.",
- exp:"Phân biệt hai động từ: <i>replace X <b>by/with</b> Y</i> (thay thế hẳn) ≠ <i>convert X <b>into</b> Y</i> (cải tạo, giữ công trình)."},
+ exp:"Phân biệt hai động từ: ở dạng <b>bị động</b>, <i>be replaced <b>by</b> Y</i> (Y là tác nhân thay thế) — nhưng ở dạng <b>chủ động</b>, phải nói <i>replace X <b>with</b> Y</i>, không dùng <i>by</i>. Khác với <i>convert X <b>into</b> Y</i> (cải tạo, giữ công trình) — hai động từ mang nghĩa khác nhau, không thể hoán đổi."},
 {q:"A shopping centre was built at the east of the park.",
  model:"A shopping centre was built <b>to</b> the east of the park.",
  exp:"<i>to the east of</i> = phía đông và <b>bên ngoài</b>. So sánh: <i>in the east of</i> = phía đông và <b>bên trong</b> khu vực đó."},

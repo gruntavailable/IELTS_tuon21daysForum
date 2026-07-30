@@ -31,7 +31,7 @@ Tốc độ đọc được cải thiện khi người học biết <b>câu nào
 <tr><td class="ph">150 phút</td><td>Làm cả hai bài trong 35–40 phút, rà soát toàn bộ bằng chứng, làm lại năm câu và viết bản tóm tắt bài đọc.</td></tr>
 </table></div>`},
 
-{t:"note",title:"Chiến lược phân bổ thời gian",tag:"Hướng dẫn",html:`
+{t:"note",title:"Chiến lược phân bổ thời gian",tag:"Lý thuyết",html:`
 <p>Thời gian chỉ được rút ngắn khi <b>chuẩn bằng chứng vẫn được giữ</b>. Người học cần ghi thời điểm bắt đầu và kết thúc từng nhóm câu, đồng thời đánh dấu câu đã chọn theo suy đoán. Dữ liệu này cho biết tốc độ chậm nằm ở khâu <b>định vị</b>, <b>đọc kỹ</b> hay <b>quyết định đáp án</b>.</p>
 <h4 style="margin-top:12px">Phân bổ thời gian gợi ý</h4>
 <ul class="tips">

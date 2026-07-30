@@ -228,7 +228,24 @@ items:[
 ["improve daily conditions","cải thiện điều kiện hằng ngày","The real goal is to improve daily conditions."]
 ]},
 
-{t:"quiz",title:"Từ quy chiếu và mệnh đề quan hệ",tag:"Grammar",kind:"free",
+{t:"note",title:"Từ quy chiếu và mệnh đề quan hệ",tag:"Lý thuyết",html:`
+<p>Một đoạn văn mạch lạc thường gộp thông tin bằng hai công cụ: <b>mệnh đề quan hệ</b> (nối trực tiếp hai ý vào một câu) và <b>từ quy chiếu</b> (<i>this, these, such, it, they…</i> — nhắc lại một ý đã nêu mà không lặp từ). Cả hai chỉ hiệu quả khi người đọc xác định được <b>chính xác</b> đối tượng đang được nhắc tới.</p>
+<h4 style="margin-top:14px">Mệnh đề quan hệ: xác định và không xác định</h4>
+<ul class="tips">
+<li><b>Xác định</b> (không phẩy): mệnh đề <i>phân loại</i> danh từ đứng trước — bỏ đi câu sẽ mất nghĩa. <i>A newly planted tree <b>that receives little water</b> may die.</i></li>
+<li><b>Không xác định</b> (có phẩy): mệnh đề chỉ <i>bổ sung</i> thông tin về cả sự việc phía trước, không dùng để phân loại. <i>The city opened a new park, <b>which raised nearby property prices</b>.</i></li>
+<li><i>where</i> dùng cho địa điểm, <i>whose</i> cho quan hệ sở hữu, <i>which</i> có thể quy chiếu về cả một mệnh đề đứng trước (không chỉ một danh từ).</li>
+</ul>
+<h4 style="margin-top:14px">Từ quy chiếu: lỗi phổ biến nhất</h4>
+<div class="model"><span class="lb">Quy chiếu rỗng — lỗi nặng nhất</span>
+<i>Residents opposed the project because it would increase <b>them</b>.</i><br>
+<span style="color:var(--tx2)">→ <i>them</i> không có tiền ngữ nào trong câu để trỏ tới — người đọc phải tự đoán.</span></div>
+<div class="model" style="border-color:#2f7a52;background:rgba(47,191,113,.07)"><span class="lb" style="color:var(--ok)">Quy chiếu mơ hồ — nên thêm danh từ tóm tắt</span>
+<i>The city planted trees near expensive apartments and schools, and <b>this</b> was unfair.</i><br>
+<span style="color:var(--tx2)">→ <i>this</i> có thể chỉ việc trồng cây, chỉ vị trí, hay cả tình huống. Thêm danh từ tóm tắt: <i>this <b>concentration of investment</b> was unfair.</i></span></div>
+<p class="instr" style="margin-top:10px">Khi rà soát bài viết, hãy dừng lại ở mỗi từ quy chiếu (<i>this, that, these, it, they, such</i>) và tự hỏi: từ này đang thay cho <b>cụm từ nào</b>? Nếu không trả lời được ngay, người đọc cũng sẽ không trả lời được.</p>`},
+
+{t:"quiz",title:"Từ quy chiếu và mệnh đề quan hệ · Luyện tập",tag:"Grammar",kind:"free",
 instr:"Kết hợp các câu sao cho tự nhiên, dùng <i>which, where, whose, that, this, these, such</i>. Bảo đảm <b>mỗi từ quy chiếu có đối tượng rõ ràng</b>.",items:[
 {q:"Some districts have less tree cover. These districts also experience heavier traffic.",
  model:"Some districts have less tree cover and also experience heavier traffic. / Districts that have less tree cover often experience heavier traffic as well.",

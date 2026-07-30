@@ -29,7 +29,7 @@ Reading cung cấp kiến thức và góc nhìn · Writing yêu cầu tổ chứ
 <tr><td class="ph">150 phút</td><td>Hoàn thành toàn bộ nội dung, viết một bài đầy đủ trong 40 phút, chép lời một câu Part 3 và lập ngân hàng gồm 24 cụm từ có thể vận dụng.</td></tr>
 </table></div>`},
 
-{t:"note",title:"Nguyên tắc chuyển giao",tag:"Hướng dẫn",html:`
+{t:"note",title:"Nguyên tắc chuyển giao",tag:"Lý thuyết",html:`
 <p class="instr">Người học <b>không</b> chuyển nguyên câu từ Reading sang Writing hoặc Speaking. Hãy quan sát cùng một ý được đổi hình dạng ba lần:</p>
 <div class="tablewrap"><table class="vt">
 <tr><th>Kỹ năng</th><th>Cách diễn đạt</th></tr>

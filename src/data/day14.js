@@ -32,7 +32,7 @@ Một kỹ năng chỉ <b>ổn định</b> khi bạn vẫn vận dụng được
 <tr><td class="ph">150 phút</td><td>Đủ Reading trong 60 phút</td><td>Đủ Writing trong 60 phút</td><td>Thi thử 15 phút</td><td>Ghi nhanh, rà soát vào ngày hôm sau</td></tr>
 </table></div>`},
 
-{t:"note",title:"Nhóm nguyên nhân gây áp lực",tag:"Hướng dẫn",html:`
+{t:"note",title:"Nhóm nguyên nhân gây áp lực",tag:"Lý thuyết",html:`
 <p>Phân loại nguyên nhân là bước <b>quyết định bài luyện tiếp theo</b>. Nếu thiếu kiến thức, cần bổ sung quy tắc hoặc ngôn ngữ. Nếu kiến thức đã có nhưng không được dùng đúng lúc, bài luyện phải <b>tái tạo thao tác và giới hạn thời gian</b> đã gây lỗi. Mỗi lỗi chỉ nên được xếp vào <b>một</b> nguyên nhân chính có bằng chứng rõ nhất.</p>
 <div class="tablewrap"><table class="vt">
 <tr><th>Nhóm</th><th>Mô tả</th></tr>
@@ -184,8 +184,8 @@ instr:"Sửa các câu trong giới hạn <b>mười phút</b>, rồi phân lo�
  model:"The number of gaming hours was lower among older adults. <i>(collocation + hoà hợp)</i>",
  exp:"Hai lỗi: <i>hours</i> đếm được → dùng <i>number</i>, không phải <i>amount</i>; và <i>The number of</i> → động từ số ít."},
 {q:"Social media accounted the second largest use for three groups.",
- model:"Social media accounted for the second largest use among three groups. <i>(giới từ)</i>",
- exp:"<i>account <b>for</b></i> — cụm bắt buộc trong Task 1. Cũng nên đổi <i>for</i> → <i>among</i> ở vế sau cho chính xác."},
+ model:"Social media accounted for the second-highest level of use among the three groups. <i>(giới từ + collocation)</i>",
+ exp:"<i>account <b>for</b></i> — cụm bắt buộc trong Task 1. Cũng nên đổi <i>for</i> → <i>among</i> ở vế sau cho chính xác. Ngoài ra, <i>the second largest use</i> không phải collocation tự nhiên; Band 7 nên viết <i>the second-highest level of use</i> hoặc <i>the second largest share of use</i>."},
 {q:"The reason is because quick replies are visible.",
  model:"The reason is that quick replies are visible. <i>(cấu trúc)</i>",
  exp:"<i>reason</i> đã mang nghĩa nguyên nhân → dùng <i>that</i>, không lặp bằng <i>because</i>."},

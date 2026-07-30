@@ -21,7 +21,7 @@ Bài viết có bấm giờ cho thấy <b>thói quen ngôn ngữ thực tế</b>
 <tr><td class="ph">150 phút</td><td>Thi thử Writing đầy đủ: Task 1 trong 20 phút và Task 2 trong 40 phút, sau đó viết lại kỹ và rà soát ngôn ngữ.</td></tr>
 </table></div>`},
 
-{t:"note",title:"Dàn ý trong tám phút",tag:"Writing",html:`
+{t:"note",title:"Dàn ý trong tám phút",tag:"Lý thuyết",html:`
 <p>Dàn ý chỉ giữ những <b>quyết định chi phối toàn bài</b>. Mỗi dòng cần đủ cụ thể để bạn biết đoạn văn sẽ chứng minh điều gì, nhưng đủ ngắn để còn thời gian triển khai.</p>
 <div class="tablewrap"><table class="vt">
 <tr><th>Mục</th><th>Nội dung</th></tr>

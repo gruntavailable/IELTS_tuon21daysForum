@@ -213,7 +213,7 @@ items:[
 ["cosmetic standards","tiêu chuẩn về ngoại hình sản phẩm","Cosmetic standards cause edible crops to be rejected."],
 ["remain unsold","không bán được","Fresh products may remain unsold."],
 ["confuse quality with safety","nhầm chất lượng với an toàn; confuse A <b>with</b> B","Consumers may confuse quality with safety."],
-["surplus food","thực phẩm dư thừa (không đếm được)","Businesses can donate surplus food."],
+["surplus food","thực phẩm dư thừa; <i>food</i> vốn không đếm được, không phải do <i>surplus</i>","Businesses can donate surplus food."],
 ["a donation network","mạng lưới quyên góp","A reliable donation network requires transport."],
 ["prevent waste at source","ngăn lãng phí ngay từ đầu chuỗi","Policy should prevent waste at source."],
 ["share responsibility","chia sẻ trách nhiệm","Consumers and businesses must share responsibility."],
