@@ -18,6 +18,7 @@ let list = [];              // [{path, start, end, color, text}]
 let popup = null;
 let root = null;
 let onSaveWord = null;      // callback khi bấm "Nhớ từ"
+let onTranslate = null;     // callback khi bấm "Dịch"
 
 /* ---------- vị trí khối: chỉ số con đường từ #main ---------- */
 function pathOf(node){
@@ -170,6 +171,8 @@ function paintPopupLabels(){
   if (x) x.title = t("hl.clear");
   const v = popup.querySelector("#hlVocab");
   if (v){ v.textContent = t("hl.save"); v.title = t("hl.save.title"); }
+  const tr = popup.querySelector("#hlTr");
+  if (tr){ tr.textContent = t("tr.btn"); tr.title = t("tr.btn.title"); }
 }
 
 function buildPopup(){
@@ -179,6 +182,7 @@ function buildPopup(){
   /* Nút nhớ từ đứng đầu: mép phải màn hình hay bị thanh công cụ của trình duyệt
      che mất, nên phần bấm nhiều nhất được đẩy về phía trái. */
   popup.innerHTML = `<button class="hl-vocab" id="hlVocab"></button>`
+    + `<button class="hl-tr" id="hlTr"></button>`
     + `<span class="hl-sep"></span>`
     + COLORS.map(c =>
       `<button class="hl-sw hl-${c.id}" data-c="${c.id}"></button>`).join("")
@@ -188,6 +192,14 @@ function buildPopup(){
 
   popup.addEventListener("mousedown", e => e.preventDefault());  // giữ vùng chọn
   popup.addEventListener("click", e => {
+    // nút dịch: giữ nguyên vùng chọn cho translate.js đọc, rồi mới bỏ chọn
+    if (e.target.closest("#hlTr")){
+      if (onTranslate) onTranslate();
+      const sel = window.getSelection();
+      sel && sel.removeAllRanges();
+      hidePopup();
+      return;
+    }
     // nút nhớ từ
     if (e.target.closest("#hlVocab")){
       const sel = window.getSelection();
@@ -223,6 +235,7 @@ function hidePopup(){ popup && popup.classList.add("hidden"); }
 export function initHighlight(opts = {}){
   root = document.getElementById("main");
   onSaveWord = opts.onSaveWord || null;
+  onTranslate = opts.onTranslate || null;
   buildPopup();
 
   onLangChange(() => {

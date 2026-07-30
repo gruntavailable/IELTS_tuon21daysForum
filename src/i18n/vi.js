@@ -277,6 +277,14 @@ export const VI = {
   "hl.none": "Trang này chưa có nội dung nào được bôi màu.",
   "hl.clearConfirm": "Xoá {n} vùng bôi màu ở trang này?",
 
+  /* ---- dịch tại chỗ ---- */
+  "tr.btn": "🇻🇳 Dịch",
+  "tr.btn.title": "Dịch đoạn đang bôi đen sang tiếng Việt",
+  "tr.mark.title": "Bấm để xem lại bản tiếng Anh",
+  "tr.done": "Đã dịch {n} câu.",
+  "tr.none": "Đoạn này chưa có bản dịch viết sẵn.",
+  "tr.partial": "Đã dịch {n} câu, còn {m} câu chưa có bản dịch.",
+
   /* ---- xoá dữ liệu ---- */
   "reset.confirm": "Xoá toàn bộ bài làm, bảng theo dõi và bài viết đã lưu?",
 

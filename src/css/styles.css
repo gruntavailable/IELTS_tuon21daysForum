@@ -291,6 +291,23 @@ mark.hl-r{background:var(--hl-r)}
 .hl-sw.hl-p{background:var(--hl-p)}
 .hl-sw.hl-r{background:var(--hl-r)}
 
+/* ============ DỊCH TẠI CHỖ ============ */
+/* Chữ tiếng Anh vẫn nằm trong DOM (chỉ bị ẩn) để toạ độ vùng bôi màu không lệch;
+   bản tiếng Việt hiện qua ::after nên không tính vào text của trang. */
+.tr{cursor:pointer;border-radius:3px}
+.tr.on{background:var(--tr-bg);box-shadow:inset 0 -1px 0 var(--tr-line)}
+.tr.on > .tr-src{display:none}
+.tr.on::after{content:attr(data-vi);color:var(--tx)}
+.tr:not(.on){border-bottom:1px dotted var(--tr-line)}
+.tr:not(.on)::after{content:none}
+.tr:hover{outline:1px dashed var(--tr-line);outline-offset:1px}
+:root{ --tr-bg:rgba(91,140,255,.13); --tr-line:rgba(91,140,255,.55); }
+:root[data-theme="light"]{ --tr-bg:rgba(91,140,255,.12); --tr-line:rgba(59,102,214,.5); }
+.hl-tr{background:var(--panel2);border:1px solid var(--line);color:var(--tx);
+  border-radius:7px;padding:0 9px;height:22px;font-size:11.5px;cursor:pointer;
+  white-space:nowrap;font-family:inherit}
+.hl-tr:hover{border-color:var(--acc);color:var(--acc)}
+
 /* ============ VOCAB ============ */
 .hl-sep{width:1px;background:var(--line);margin:2px 1px;flex:0 0 1px}
 .hl-vocab{background:var(--panel2);border:1px solid var(--line);color:var(--tx);

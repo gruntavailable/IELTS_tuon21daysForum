@@ -24,6 +24,7 @@ JS_FILES = [
     "src/js/tracker.js",
     "src/js/vocab.js",
     "src/js/backup.js",
+    "src/js/translate.js",
     "src/js/highlight.js",
     "src/js/app.js",
 ]
@@ -99,6 +100,23 @@ def build():
     data_js = ("\n".join(preamble) + "\n\nconst DATA = [\n"
                + ",\n\n".join(days) + "\n];\n")
     data_js = inline_assets(data_js)
+
+    # Bang tra ban dich tieng Viet: src/data/tr/day{i}.js -> const TRANS_RAW
+    tr_parts = []
+    for i in range(1, 22):
+        rel = f"src/data/tr/day{i}.js"
+        if not os.path.exists(os.path.join(ROOT, rel)):
+            continue
+        src = read(rel)
+        cut = src.find("export default")
+        if cut < 0:
+            sys.exit(f"tr/day{i}.js: khong tim thay 'export default'")
+        body = src[cut:].replace("export default", "", 1).strip()
+        if body.endswith(";"):
+            body = body[:-1].rstrip()
+        tr_parts.append(body)
+    data_js += ("\nconst TRANS_RAW = Object.assign({}, "
+                + ", ".join(tr_parts) + ");\n")
 
     raw = [(p, read(p)) for p in JS_FILES]
     dupes = check_collisions(raw)

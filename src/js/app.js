@@ -4,6 +4,7 @@ import { initTheme } from "./theme.js";
 import { initTimer } from "./timer.js";
 import { renderTracker, renderDayChecklist, renderErrorLog, trackerStats } from "./tracker.js";
 import { initHighlight, loadHighlightsFor, clearDayHighlights, highlightCount } from "./highlight.js";
+import { initTranslate, loadTranslationsFor, translateSelection } from "./translate.js";
 import { addWord, renderVocabTable, vocabCount, onVocabChange, exportCSV, clearWords, allWords } from "./vocab.js";
 import { initBackup } from "./backup.js";
 import { t, initI18n, onLangChange, applyStatic } from "../i18n/index.js";
@@ -539,6 +540,7 @@ function renderDay(){
   wrapTables();
   markHighlightHosts();
   loadHighlightsFor(d.id);
+  loadTranslationsFor(d.id);
   updBar();
 }
 /* Mỗi khối là một "neo" để lưu vị trí vùng bôi màu. */
@@ -597,6 +599,7 @@ function renderVocabView(){
   wrapTables();
   markHighlightHosts();
   loadHighlightsFor("vocab");
+  loadTranslationsFor("vocab");
   updBar();
 }
 function renderTrackerView(){
@@ -632,6 +635,7 @@ function renderTrackerView(){
   wrapTables();
   markHighlightHosts();
   loadHighlightsFor("tracker");
+  loadTranslationsFor("tracker");
   updBar();
 }
 function updBar(){
@@ -733,6 +737,13 @@ function saveWordFromSelection(text){
   if(dayVocabMount) renderVocabTable(dayVocabMount,{day,onChange:updBar});
   renderNav();
 }
+/* Bấm "Dịch" trên popup bôi đen → thay đoạn tiếng Anh bằng bản dịch viết sẵn. */
+function translateFromSelection(){
+  const r=translateSelection();
+  if(r.done && r.missing) toast(t("tr.partial",{n:r.done,m:r.missing}));
+  else if(r.done)         toast(t("tr.done",{n:r.done}));
+  else                    toast(t("tr.none"));
+}
 let toastEl=null, toastT=null;
 function toast(msg){
   if(!toastEl){
@@ -749,7 +760,8 @@ initI18n();
 initTheme();
 initTimer();
 initBackup();
-initHighlight({onSaveWord:saveWordFromSelection});
+initHighlight({onSaveWord:saveWordFromSelection, onTranslate:translateFromSelection});
+initTranslate();
 initLearnerName();
 applyStatic();          // nhãn do initLearnerName() vừa thêm cũng cần được dịch
 onVocabChange(()=>renderNav());

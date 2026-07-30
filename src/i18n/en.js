@@ -277,6 +277,14 @@ export const EN = {
   "hl.none": "Nothing on this page has been highlighted yet.",
   "hl.clearConfirm": "Remove {n} highlights from this page?",
 
+  /* ---- inline translation ---- */
+  "tr.btn": "🇻🇳 Dịch",
+  "tr.btn.title": "Translate the selected text into Vietnamese",
+  "tr.mark.title": "Click to show the English again",
+  "tr.done": "Translated {n} sentence(s).",
+  "tr.none": "No prepared translation for this text yet.",
+  "tr.partial": "Translated {n} sentence(s); {m} still have no translation.",
+
   /* ---- clearing data ---- */
   "reset.confirm": "Delete all answers, the tracker and every saved piece of writing?",
 
